@@ -19,6 +19,7 @@ import re
 import time
 import urllib
 import urllib2
+import cookielib
 
 
 DEFAULT_HEADERS = {
@@ -72,7 +73,8 @@ class WebClient(object):
             auth_handler.add_password(**auth)
             opener = urllib2.build_opener(auth_handler)
         else:
-            opener = urllib2.build_opener()
+            cj = cookielib.CookieJar()
+            opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj), urllib2.HTTPHandler(debuglevel=0))
 
         # copy headers from dict to list of key,value
         headers_list = []
@@ -155,7 +157,7 @@ class WebClient(object):
                 if match:
                     name = match.group('name')
                     if name in self.sessions and self.sessions[name] != value:
-                        raise RuntimeError('Broken sessions %s' % name)
+                        print RuntimeError('Changed session ID %s' % name)
                     self.sessions[name] = value
 
         # find all forms and formkeys in page
